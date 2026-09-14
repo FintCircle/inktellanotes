@@ -152,37 +152,37 @@ export const TaxonomyView: React.FC<TaxonomyViewProps> = ({ type, slug }) => {
   return (
     <div id="tool-taxonomy-page" className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <header className="mb-8">
-        <div className="flex items-center gap-2 text-stone-400 text-xs uppercase tracking-widest font-semibold mb-2">
-          <Wrench className="w-3.5 h-3.5" />
-          <span>Tool · {tool.category}</span>
+        <div className="flex items-center gap-2 text-stone-400 text-xs uppercase tracking-widest font-semibold mb-3">
+          <Wrench className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">Tool · {tool.category}</span>
         </div>
 
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-4 min-w-0">
-            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
-              {tool.logoUrl ? <img src={tool.logoUrl} alt={`${tool.name} logo`} className="w-full h-full object-contain p-2" /> : <ToolIcon icon={tool.icon} name={tool.name} category={tool.category} className="w-8 h-8 text-stone-500" />}
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+            <div className="size-14 sm:size-[4.5rem] rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+              {tool.logoUrl ? <img src={tool.logoUrl} alt={`${tool.name} logo`} className="size-full object-contain p-2" /> : <ToolIcon icon={tool.icon} name={tool.name} category={tool.category} className="w-8 h-8 text-stone-500" />}
             </div>
-            <div className="min-w-0">
-            <h1 className="font-editorial text-3xl sm:text-5xl font-bold text-stone-900 dark:text-stone-100">
-              {tool.name}
-            </h1>
-            {tool.website && (
-              <a
-                href={tool.website}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-1 text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 flex items-center gap-1 underline decoration-stone-300"
-              >
-                <span>{tool.website}</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            )}
+            <div className="min-w-0 pt-0.5">
+              <h1 className="font-editorial text-3xl sm:text-5xl font-bold leading-[1.05] text-stone-900 dark:text-stone-100 break-words">
+                {tool.name}
+              </h1>
+              {tool.website && (
+                <a
+                  href={tool.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 max-w-full text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 inline-flex items-center gap-1 underline decoration-stone-300"
+                >
+                  <span className="truncate">{tool.website}</span>
+                  <ExternalLink className="w-3 h-3 shrink-0" />
+                </a>
+              )}
             </div>
           </div>
 
           <button
             onClick={() => toggleFollowTool(tool.id)}
-            className={`px-4 py-1.5 rounded text-xs font-medium transition-colors ${
+            className={`w-full sm:w-auto shrink-0 px-4 py-2.5 rounded text-sm font-medium transition-colors ${
               isFollowingTool
                 ? 'bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200'
                 : 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 hover:opacity-90'
@@ -192,7 +192,7 @@ export const TaxonomyView: React.FC<TaxonomyViewProps> = ({ type, slug }) => {
           </button>
         </div>
 
-        <p className="font-editorial text-lg text-stone-600 dark:text-stone-400 mt-3 leading-relaxed">
+        <p className="font-editorial text-lg sm:text-xl text-stone-600 dark:text-stone-400 mt-5 leading-relaxed">
           {tool.description}
         </p>
       </header>
