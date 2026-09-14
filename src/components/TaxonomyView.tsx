@@ -1,7 +1,7 @@
 import React from 'react';
 import { useInktella } from '../context/InktellaContext';
 import { NoteCard } from './NoteCard';
-import { ExternalLink, Check, Layers, Wrench } from 'lucide-react';
+import { Check, Layers, Wrench } from 'lucide-react';
 import { ToolIcon } from './ToolIcon';
 
 interface TaxonomyViewProps {
@@ -159,24 +159,26 @@ export const TaxonomyView: React.FC<TaxonomyViewProps> = ({ type, slug }) => {
 
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
           <div className="flex min-w-0 items-start gap-3 sm:gap-4">
-            <div className="size-14 sm:size-[4.5rem] rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
-              {tool.logoUrl ? <img src={tool.logoUrl} alt={`${tool.name} logo`} className="size-full object-contain p-2" /> : <ToolIcon icon={tool.icon} name={tool.name} category={tool.category} className="w-8 h-8 text-stone-500" />}
-            </div>
+            {tool.website ? (
+              <a
+                href={tool.website}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`Visit ${tool.name} website`}
+                className="size-14 sm:size-[4.5rem] rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-center shrink-0 overflow-hidden shadow-sm hover:border-stone-400 dark:hover:border-stone-600 transition-colors"
+              >
+                {tool.logoUrl ? <img src={tool.logoUrl} alt={`${tool.name} logo`} className="size-full object-contain p-2" /> : <ToolIcon icon={tool.icon} name={tool.name} category={tool.category} className="w-8 h-8 text-stone-500" />}
+              </a>
+            ) : (
+              <div className="size-14 sm:size-[4.5rem] rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                {tool.logoUrl ? <img src={tool.logoUrl} alt={`${tool.name} logo`} className="size-full object-contain p-2" /> : <ToolIcon icon={tool.icon} name={tool.name} category={tool.category} className="w-8 h-8 text-stone-500" />}
+              </div>
+            )}
             <div className="min-w-0 pt-0.5">
               <h1 className="font-editorial text-3xl sm:text-5xl font-bold leading-[1.05] text-stone-900 dark:text-stone-100 break-words">
                 {tool.name}
               </h1>
-              {tool.website && (
-                <a
-                  href={tool.website}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-2 max-w-full text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 inline-flex items-center gap-1 underline decoration-stone-300"
-                >
-                  <span className="truncate">{tool.website}</span>
-                  <ExternalLink className="w-3 h-3 shrink-0" />
-                </a>
-              )}
+
             </div>
           </div>
 
