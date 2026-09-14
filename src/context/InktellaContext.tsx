@@ -72,8 +72,8 @@ interface InktellaContextType {
   adminResolveReport: (reportId: string, action: 'resolved' | 'dismissed', removeTarget?: boolean) => void;
 
   // Admin network tools
-  adminCreateTool: (name: string, description: string, category: ToolEntity['category'], aliases: string[], icon: string, website?: string) => void;
-  adminUpdateTool: (toolId: string, updates: Partial<Pick<ToolEntity, 'name' | 'description' | 'category' | 'aliases' | 'icon' | 'website'>>) => void;
+  adminCreateTool: (name: string, description: string, category: ToolEntity['category'], aliases: string[], icon?: string, website?: string, logoUrl?: string) => void;
+  adminUpdateTool: (toolId: string, updates: Partial<Pick<ToolEntity, 'name' | 'description' | 'category' | 'aliases' | 'icon' | 'website' | 'logoUrl'>>) => void;
   adminMergeTools: (canonicalToolId: string, aliasNames: string[], toolIdsToRemove: string[]) => void;
   adminCreateContext: (name: string, description: string) => void;
   adminRenameContext: (contextId: string, newName: string, newDescription?: string) => void;
@@ -734,7 +734,7 @@ export const InktellaProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [reports, deleteNote, deleteComment]);
 
   // Admin Tools
-  const adminCreateTool = useCallback((name: string, description: string, category: ToolEntity['category'], aliases: string[]) => {
+  const adminCreateTool = useCallback((name: string, description: string, category: ToolEntity['category'], aliases: string[], icon = 'Wrench', website?: string, logoUrl?: string) => {
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const newTool: ToolEntity = {
       id: `tool_${Date.now()}`,
@@ -743,12 +743,24 @@ export const InktellaProvider: React.FC<{ children: ReactNode }> = ({ children }
       description,
       category,
       aliases: aliases.map((a) => a.trim()).filter(Boolean),
+      icon,
+      website: website?.trim() || undefined,
+      logoUrl: logoUrl?.trim() || undefined,
       notesCount: 0,
       notebooksCount: 0,
       isCanonical: true,
     };
     setTools((prev) => [...prev, newTool]);
   }, []);
+
+  const adminUpdateTool = useCallback((toolId: string, updates: Partial<Pick<ToolEntity, 'name' | 'description' | 'category' | 'aliases' | 'icon' | 'website' | 'logoUrl'>>) => {
+    setTools((prev) => prev.map((tool) => tool.id === toolId ? { ...tool, ...updates } : tool));
+  }, []);
+
+  const getToolByName = useCallback((name: string) => {
+    const normalized = name.trim().toLowerCase();
+    return tools.find((tool) => tool.name.toLowerCase() === normalized || tool.aliases.some((alias) => alias.toLowerCase() === normalized));
+  }, [tools]);
 
   const adminMergeTools = useCallback((canonicalToolId: string, aliasNames: string[], toolIdsToRemove: string[]) => {
     setTools((prev) => {
@@ -879,7 +891,9 @@ export const InktellaProvider: React.FC<{ children: ReactNode }> = ({ children }
         submitReport,
         adminResolveReport,
         adminCreateTool,
+        adminUpdateTool,
         adminMergeTools,
+        getToolByName,
         adminCreateContext,
         adminRenameContext,
         adminMergeContexts,

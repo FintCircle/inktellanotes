@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useInktella } from '../context/InktellaContext';
-import { Shield, Check, Trash2, Plus, Sparkles, AlertCircle, Wrench, Layers } from 'lucide-react';
+import { Shield, Check, Trash2, Plus, Sparkles, AlertCircle, Wrench, Layers, ImagePlus, X } from 'lucide-react';
+import { ToolIcon } from './ToolIcon';
 
 export const AdminModerationView: React.FC = () => {
   const {
@@ -26,6 +27,9 @@ export const AdminModerationView: React.FC = () => {
   const [newToolName, setNewToolName] = useState('');
   const [newToolCategory, setNewToolCategory] = useState('development');
   const [newToolDesc, setNewToolDesc] = useState('');
+  const [newToolLogoUrl, setNewToolLogoUrl] = useState('');
+  const [newToolLogoFile, setNewToolLogoFile] = useState('');
+  const [logoError, setLogoError] = useState('');
 
   const handleCreateContext = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,9 +42,28 @@ export const AdminModerationView: React.FC = () => {
   const handleCreateTool = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newToolName.trim()) return;
-    adminCreateTool(newToolName.trim(), newToolDesc.trim(), newToolCategory as any, []);
+    adminCreateTool(newToolName.trim(), newToolDesc.trim(), newToolCategory as any, [], 'Wrench', undefined, newToolLogoFile || newToolLogoUrl.trim() || undefined);
     setNewToolName('');
     setNewToolDesc('');
+    setNewToolLogoUrl('');
+    setNewToolLogoFile('');
+    setLogoError('');
+  };
+
+  const handleLogoFile = (file?: File) => {
+    setLogoError('');
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setLogoError('Choose an image file.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setLogoError('Logo files must be 2 MB or smaller.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setNewToolLogoFile(String(reader.result));
+    reader.readAsDataURL(file);
   };
 
   const pendingReports = reports.filter((r) => r.status === 'pending');
@@ -296,6 +319,32 @@ export const AdminModerationView: React.FC = () => {
                 placeholder="Short description of the tool"
                 className="w-full p-2 rounded border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 placeholder-stone-400 dark:placeholder-stone-500"
               />
+              <div className="rounded border border-dashed border-stone-300 dark:border-stone-700 p-3 space-y-2">
+                <div className="flex items-center gap-1.5 text-stone-600 dark:text-stone-300 font-medium">
+                  <ImagePlus className="w-3.5 h-3.5" /> Tool logo <span className="text-stone-400 font-normal">(optional)</span>
+                </div>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  onChange={(e) => handleLogoFile(e.target.files?.[0])}
+                  className="w-full text-[11px] text-stone-500 file:mr-2 file:rounded file:border-0 file:bg-stone-200 file:px-2 file:py-1 file:text-[11px] file:text-stone-700 dark:file:bg-stone-800 dark:file:text-stone-200"
+                />
+                <input
+                  type="url"
+                  value={newToolLogoUrl}
+                  onChange={(e) => { setNewToolLogoUrl(e.target.value); setNewToolLogoFile(''); setLogoError(''); }}
+                  placeholder="Or paste a logo image URL"
+                  className="w-full p-2 rounded border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 placeholder-stone-400 dark:placeholder-stone-500"
+                />
+                {(newToolLogoFile || newToolLogoUrl) && (
+                  <div className="flex items-center gap-2 text-[11px] text-stone-500">
+                    <img src={newToolLogoFile || newToolLogoUrl} alt="Logo preview" className="w-9 h-9 rounded object-contain border border-stone-200 dark:border-stone-700 bg-white" />
+                    <span>Logo preview</span>
+                    <button type="button" onClick={() => { setNewToolLogoFile(''); setNewToolLogoUrl(''); }} className="ml-auto p-1 hover:text-stone-900 dark:hover:text-stone-100" aria-label="Clear logo"><X className="w-3.5 h-3.5" /></button>
+                  </div>
+                )}
+                {logoError && <p className="text-red-600 dark:text-red-400">{logoError}</p>}
+              </div>
               <button
                 type="submit"
                 className="px-3 py-1.5 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded font-medium"
@@ -310,9 +359,14 @@ export const AdminModerationView: React.FC = () => {
                   key={t.id}
                   className="p-2 rounded bg-stone-50 dark:bg-stone-800/40 border border-stone-100 dark:border-stone-800 flex items-center justify-between"
                 >
-                  <div>
-                    <span className="font-medium text-stone-800 dark:text-stone-200">{t.name}</span>
-                    <span className="text-[10px] text-stone-400 ml-1.5">({t.category})</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-8 h-8 rounded border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 flex items-center justify-center shrink-0 overflow-hidden">
+                      {t.logoUrl ? <img src={t.logoUrl} alt="" className="w-full h-full object-contain" /> : <ToolIcon icon={t.icon} name={t.name} category={t.category} className="w-4 h-4 text-stone-500" />}
+                    </div>
+                    <div className="min-w-0">
+                      <span className="font-medium text-stone-800 dark:text-stone-200">{t.name}</span>
+                      <span className="text-[10px] text-stone-400 ml-1.5">({t.category})</span>
+                    </div>
                   </div>
                   <span className="text-[10px] text-stone-400 font-mono">{t.notesCount} notes</span>
                 </div>

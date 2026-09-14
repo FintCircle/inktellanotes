@@ -98,6 +98,7 @@ export interface ToolEntity {
   category: 'development' | 'writing' | 'design' | 'research' | 'productivity' | string;
   aliases: string[];
   website?: string;
+  logoUrl?: string; // Admin-provided logo URL or persisted image data
   icon: string; // Icon identifier (e.g. "Cloud", "HardDrive", "Database", "Atom", etc.)
   notesCount: number;
   notebooksCount: number;
