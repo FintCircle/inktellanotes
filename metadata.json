@@ -1,0 +1,6 @@
+{
+  "name": "Inktella",
+  "description": "A typography-first network of public notebooks and notes for thinkers, writers, and builders.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

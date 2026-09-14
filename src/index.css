@@ -1,0 +1,219 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-serif: 'Newsreader', Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --font-hand: 'Caveat', 'Kalam', cursive, system-ui;
+    --ink-bg: #FAF9F6;
+    --ink-surface: #FFFFFF;
+    --ink-border: #E8E5DF;
+    --ink-text-main: #1C1917;
+    --ink-text-muted: #6B665E;
+    --ink-accent: #2B2620;
+  }
+
+  .dark {
+    --ink-bg: #141312;
+    --ink-surface: #1C1B19;
+    --ink-border: #2E2B27;
+    --ink-text-main: #EDEDEA;
+    --ink-text-muted: #9E9991;
+    --ink-accent: #D6D2CA;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--ink-bg);
+    color: var(--ink-text-main);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Custom scrollbars that blend seamlessly in both modes */
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(120, 113, 108, 0.25);
+    border-radius: 9999px;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(168, 162, 158, 0.22);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(120, 113, 108, 0.45);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(168, 162, 158, 0.4);
+  }
+
+  /* Text selection blending with ink identity */
+  ::selection {
+    background: rgba(217, 119, 6, 0.22);
+    color: inherit;
+  }
+
+  .dark ::selection {
+    background: rgba(245, 158, 11, 0.32);
+    color: #FFFFFF;
+  }
+
+  /* Editorial serif styling */
+  .font-editorial {
+    font-family: var(--font-serif);
+    font-feature-settings: "liga" 1, "dlig" 1;
+  }
+
+  .font-editorial-title {
+    font-family: var(--font-serif);
+    font-variation-settings: 'opsz' 36;
+    letter-spacing: -0.015em;
+  }
+
+  .font-editorial-body {
+    font-family: var(--font-serif);
+    font-variation-settings: 'opsz' 16;
+    line-height: 1.72;
+  }
+
+  .font-sans-ui {
+    font-family: var(--font-sans);
+  }
+
+  .font-code {
+    font-family: var(--font-mono);
+  }
+
+  /* Human handwriting font for annotations, sprinkles & margin notes */
+  .font-hand,
+  .font-handwriting {
+    font-family: var(--font-hand);
+  }
+}
+
+/* Custom markdown body styling */
+.inktella-prose {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  line-height: 1.76;
+  color: inherit;
+}
+
+.inktella-prose p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+.inktella-prose h1,
+.inktella-prose h2,
+.inktella-prose h3,
+.inktella-prose h4 {
+  font-family: var(--font-serif);
+  color: inherit;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+}
+
+.inktella-prose h2 {
+  font-size: 1.65rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(120, 113, 108, 0.15);
+}
+
+.inktella-prose h3 {
+  font-size: 1.35rem;
+}
+
+.inktella-prose blockquote {
+  border-left: 2px solid #78716C;
+  padding-left: 1.25rem;
+  font-style: italic;
+  margin: 1.75rem 0;
+  opacity: 0.92;
+}
+
+.inktella-prose ul {
+  list-style-type: disc;
+  margin: 1.25rem 0 1.25rem 1.5rem;
+}
+
+.inktella-prose ol {
+  list-style-type: decimal;
+  margin: 1.25rem 0 1.25rem 1.5rem;
+}
+
+.inktella-prose li {
+  margin-top: 0.45em;
+  margin-bottom: 0.45em;
+}
+
+.inktella-prose pre {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  background-color: rgba(28, 25, 23, 0.05);
+  padding: 1.15rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid rgba(120, 113, 108, 0.15);
+}
+
+.dark .inktella-prose pre {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.inktella-prose code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 0.15em 0.35em;
+  background-color: rgba(28, 25, 23, 0.07);
+  border-radius: 3px;
+}
+
+.dark .inktella-prose code:not(pre code) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.inktella-prose a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease;
+}
+
+.inktella-prose a:hover {
+  opacity: 0.75;
+}
+
+.inktella-prose img {
+  border-radius: 4px;
+  margin: 2rem auto;
+  max-width: 100%;
+}
+
