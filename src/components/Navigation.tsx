@@ -64,15 +64,15 @@ export const Navigation: React.FC = () => {
       id="inktella-nav-header"
       className="sticky top-0 z-40 w-full border-b border-stone-200/80 dark:border-stone-800/80 bg-[#FAF9F6]/90 dark:bg-[#141312]/90 backdrop-blur-md transition-colors"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
         {/* Left: Brand Identity & Primary Links */}
-        <div className="flex items-center gap-8">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-8">
           <button
             id="brand-logo-btn"
             onClick={() => navigateTo({ type: 'discover' })}
             className="flex items-center gap-2 group text-left cursor-pointer focus:outline-none"
           >
-            <span className="font-editorial text-2xl font-bold tracking-widest text-stone-900 dark:text-stone-100 group-hover:opacity-80 transition-opacity">
+            <span className="font-editorial text-xl sm:text-2xl font-bold tracking-[0.16em] sm:tracking-widest text-stone-900 dark:text-stone-100 group-hover:opacity-80 transition-opacity">
               INKTELLA
             </span>
             <span className="font-hand text-base sm:text-lg text-amber-800 dark:text-amber-400 -rotate-3 select-none ml-0.5 hidden sm:inline font-medium">
@@ -100,12 +100,12 @@ export const Navigation: React.FC = () => {
         </div>
 
         {/* Right: Search, Write Note, Notifications, User Persona & Theme */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-0.5 sm:gap-3">
           {/* Quick Search */}
           <button
             id="global-search-trigger"
             onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-900 hover:bg-stone-200/70 dark:hover:bg-stone-800/70 border border-stone-200 dark:border-stone-800 rounded transition-colors"
+            className="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 text-xs text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-900 hover:bg-stone-200/70 dark:hover:bg-stone-800/70 border border-stone-200 dark:border-stone-800 rounded transition-colors"
             title="Search notes, notebooks, tools, and people (⌘K)"
           >
             <Search className="w-3.5 h-3.5" />
@@ -119,7 +119,7 @@ export const Navigation: React.FC = () => {
           <button
             id="quick-theme-toggle-btn"
             onClick={toggleTheme}
-            className="p-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-200/60 dark:hover:bg-stone-800/70 rounded-full transition-colors flex items-center justify-center cursor-pointer"
+            className="p-1.5 sm:p-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-200/60 dark:hover:bg-stone-800/70 rounded-full transition-colors flex items-center justify-center cursor-pointer"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             aria-label="Toggle dark mode"
           >
@@ -145,7 +145,7 @@ export const Navigation: React.FC = () => {
             <button
               id="notifications-btn"
               onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
-              className="relative p-2 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 rounded transition-colors"
+              className="relative p-1.5 sm:p-2 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 rounded transition-colors"
               aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
