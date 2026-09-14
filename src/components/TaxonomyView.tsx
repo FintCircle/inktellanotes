@@ -2,6 +2,7 @@ import React from 'react';
 import { useInktella } from '../context/InktellaContext';
 import { NoteCard } from './NoteCard';
 import { ExternalLink, Check, Layers, Wrench } from 'lucide-react';
+import { ToolIcon } from './ToolIcon';
 
 interface TaxonomyViewProps {
   type: 'context' | 'tool';
@@ -157,7 +158,11 @@ export const TaxonomyView: React.FC<TaxonomyViewProps> = ({ type, slug }) => {
         </div>
 
         <div className="flex items-start justify-between gap-4">
-          <div>
+          <div className="flex items-start gap-4 min-w-0">
+            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+              {tool.logoUrl ? <img src={tool.logoUrl} alt={`${tool.name} logo`} className="w-full h-full object-contain p-2" /> : <ToolIcon icon={tool.icon} name={tool.name} category={tool.category} className="w-8 h-8 text-stone-500" />}
+            </div>
+            <div className="min-w-0">
             <h1 className="font-editorial text-3xl sm:text-5xl font-bold text-stone-900 dark:text-stone-100">
               {tool.name}
             </h1>
@@ -172,6 +177,7 @@ export const TaxonomyView: React.FC<TaxonomyViewProps> = ({ type, slug }) => {
                 <ExternalLink className="w-3 h-3" />
               </a>
             )}
+            </div>
           </div>
 
           <button
