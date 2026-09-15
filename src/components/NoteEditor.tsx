@@ -25,7 +25,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { NoteStatus, NoteEmbed } from '../types';
-import { extractHtmlEmbeds, NoteEmbeds } from './NoteEmbedRenderer';
+import { extractHtmlEmbeds, inferEmbed, NoteEmbeds } from './NoteEmbedRenderer';
 
 interface NoteEditorProps {
   editNoteId?: string;
@@ -76,7 +76,6 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ editNoteId, onDone }) =>
   // Media embed dialog
   const [showEmbedDialog, setShowEmbedDialog] = useState(false);
   const [embedUrl, setEmbedUrl] = useState('');
-  const [embedType, setEmbedType] = useState<'link-card' | 'video' | 'image'>('link-card');
   const [embedTitle, setEmbedTitle] = useState('');
   const [embedDescription, setEmbedDescription] = useState('');
 
@@ -244,18 +243,12 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ editNoteId, onDone }) =>
       return;
     }
 
-    const isYoutube = parsedUrl.hostname === 'youtu.be' || parsedUrl.hostname.endsWith('.youtube.com') || parsedUrl.hostname === 'youtube.com';
-    const isVimeo = parsedUrl.hostname === 'vimeo.com' || parsedUrl.hostname.endsWith('.vimeo.com');
-    const finalType = isYoutube || isVimeo ? 'video' : embedType;
-
-    const newEmbed: NoteEmbed = {
-      id: `embed_${Date.now()}`,
-      type: finalType,
-      url: trimmedUrl,
-      title: embedTitle.trim() || (finalType === 'video' ? 'Video Embed' : 'Link Resource'),
-      description: embedDescription.trim(),
-      siteName: parsedUrl.hostname.replace('www.', ''),
-    };
+    const detectedEmbed = inferEmbed(
+      trimmedUrl,
+      embedTitle.trim() || undefined,
+      embedDescription.trim() || undefined,
+    );
+    const newEmbed: NoteEmbed = detectedEmbed;
 
     setEmbeds([...embeds, newEmbed]);
 
@@ -578,35 +571,9 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ editNoteId, onDone }) =>
             </button>
           </div>
 
-          <div className="flex gap-4 text-xs">
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <input
-                type="radio"
-                name="embedType"
-                checked={embedType === 'link-card'}
-                onChange={() => setEmbedType('link-card')}
-              />
-              <span>Link Card</span>
-            </label>
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <input
-                type="radio"
-                name="embedType"
-                checked={embedType === 'video'}
-                onChange={() => setEmbedType('video')}
-              />
-              <span>Video (YouTube/Vimeo)</span>
-            </label>
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <input
-                type="radio"
-                name="embedType"
-                checked={embedType === 'image'}
-                onChange={() => setEmbedType('image')}
-              />
-              <span>Inline Image</span>
-            </label>
-          </div>
+          <p className="text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+            Paste a YouTube, Vimeo, image, video, or audio URL. The editor detects the format and renders it inline in the note. Other URLs become a compact link card.
+          </p>
 
               <input
                 type="url"
