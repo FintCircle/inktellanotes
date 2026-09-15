@@ -155,9 +155,21 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, initialQuery 
         id="search-modal-card"
         className={pageMode ? 'w-full max-w-5xl mx-auto min-h-[calc(100vh-4rem)] border-x border-stone-200 dark:border-stone-800 bg-[#FAF9F6] dark:bg-[#1C1B19] overflow-hidden flex flex-col transition-colors' : 'w-full max-w-2xl bg-[#FAF9F6] dark:bg-[#1C1B19] border border-stone-300 dark:border-stone-800 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[82vh] transition-colors'}
       >
+        {pageMode && (
+          <div className="flex items-center justify-between px-4 sm:px-6 pt-4 pb-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-sm font-medium text-stone-500 transition-colors hover:text-stone-900 dark:hover:text-stone-100"
+            >
+              Back to library
+            </button>
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-stone-400">Search</span>
+          </div>
+        )}
+
         {/* Search Header Input */}
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3.5 border-b border-stone-200 dark:border-stone-800 bg-white/70 dark:bg-stone-900/60">
-          {pageMode && <button type="button" onClick={onClose} className="shrink-0 text-sm text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">Back</button>}
+        <div className="mx-3 sm:mx-6 mt-3 mb-2 flex min-w-0 items-center gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3.5 shadow-sm dark:border-stone-700 dark:bg-stone-900">
           <Search className="w-5 h-5 text-stone-400 shrink-0" />
           <input
             ref={inputRef}
@@ -183,9 +195,10 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, initialQuery 
           )}
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-stone-200/80 dark:border-stone-800/80 bg-stone-50/50 dark:bg-stone-900/30 overflow-x-auto no-scrollbar text-xs">
-          <span className="text-stone-400 font-mono text-[11px] shrink-0">Filter:</span>
+        {/* Filter Cloud */}
+        <div className="px-4 sm:px-6 py-3 border-b border-stone-200/80 bg-stone-50/50 dark:border-stone-800/80 dark:bg-stone-900/30">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="mr-1 text-stone-400 font-mono text-[11px]">Filter by</span>
           {(
             [
               { id: 'all', label: 'All' },
@@ -207,10 +220,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, initialQuery 
               {filter.label}
             </button>
           ))}
+          </div>
         </div>
 
         {/* Results Container */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-4">
+        <div className="flex-1 overflow-y-auto px-3 py-5 sm:px-6 sm:py-6">
           {!q && (
             <div className="py-12 text-center text-stone-400 text-xs space-y-2">
               <p className="font-editorial text-base text-stone-600 dark:text-stone-300">
