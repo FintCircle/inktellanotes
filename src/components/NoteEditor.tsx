@@ -69,6 +69,8 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ editNoteId, onDone }) =>
   const [toolInput, setToolInput] = useState('');
   const [isPreview, setIsPreview] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'dirty'>('saved');
+  const [embedError, setEmbedError] = useState('');
+  const lastSavedSignature = useRef('');
 
   // Media embed dialog
   const [showEmbedDialog, setShowEmbedDialog] = useState(false);
@@ -97,16 +99,82 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ editNoteId, onDone }) =>
     }
   }, [myNotebooks, selectedNotebookId, currentUser, createNotebook, isCreatingNotebook]);
 
-  // Autosave simulation
+  const editorSignature = JSON.stringify({
+    title: title.trim(),
+    body,
+    selectedNotebookId,
+    status,
+    selectedContexts,
+    selectedTools,
+    subjectInput,
+    roleAtWriting,
+    embeds,
+  });
+
   useEffect(() => {
-    if (!title && !body) return;
+    if (existingNote) {
+      lastSavedSignature.current = JSON.stringify({
+        title: existingNote.title,
+        body: existingNote.body,
+        selectedNotebookId: existingNote.notebookId,
+        status: existingNote.status,
+        selectedContexts: existingNote.contexts,
+        selectedTools: existingNote.tools,
+        subjectInput: existingNote.subjects.join(', '),
+        roleAtWriting: existingNote.roleAtWriting,
+        embeds: existingNote.embeds,
+      });
+    }
+  }, [editNoteId]);
+
+  useEffect(() => {
+    const hasContent = Boolean(title.trim() || body.trim());
+    const hasChanges = editorSignature !== lastSavedSignature.current;
+    if (!hasContent || !hasChanges) return;
+
     setSaveStatus('dirty');
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
+      if (!existingNote || !title.trim()) return;
       setSaveStatus('saving');
-      setTimeout(() => setSaveStatus('saved'), 400);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [title, body, selectedNotebookId, selectedContexts, selectedTools]);
+      if (existingNote && title.trim()) {
+        const subjects = subjectInput.split(',').map((s) => s.trim()).filter(Boolean);
+        updateNote(existingNote.id, {
+          title: title.trim(), body, notebookId: selectedNotebookId, status,
+          contexts: selectedContexts.length ? selectedContexts : ['Building'],
+          tools: selectedTools, subjects, roleAtWriting, embeds,
+        });
+        lastSavedSignature.current = editorSignature;
+        setSaveStatus('saved');
+      }
+    }, 1200);
+    return () => window.clearTimeout(timer);
+  }, [editorSignature, existingNote, selectedNotebookId, status, selectedContexts, selectedTools, subjectInput, roleAtWriting, embeds, title, body, updateNote]);
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 's') {
+        event.preventDefault();
+        handlePublishOrSave();
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+        event.preventDefault();
+        setIsPreview((current) => !current);
+      }
+    };
+    window.addEventListener('keydown', handleShortcut);
+    return () => window.removeEventListener('keydown', handleShortcut);
+  });
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (saveStatus === 'dirty' || saveStatus === 'saving') {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [saveStatus]);
 
   const insertFormatting = (prefix: string, suffix: string = '') => {
     const textarea = textareaRef.current;
@@ -160,19 +228,32 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ editNoteId, onDone }) =>
   };
 
   const handleInsertEmbed = () => {
-    if (!embedUrl.trim()) return;
+    const trimmedUrl = embedUrl.trim();
+    if (!trimmedUrl) {
+      setEmbedError('Paste a URL to insert an embed.');
+      return;
+    }
 
-    // Detect YouTube
-    const isYoutube = embedUrl.includes('youtube.com') || embedUrl.includes('youtu.be');
-    const finalType = isYoutube ? 'video' : embedType;
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(trimmedUrl);
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error('Unsupported protocol');
+    } catch {
+      setEmbedError('Enter a valid http:// or https:// URL.');
+      return;
+    }
+
+    const isYoutube = parsedUrl.hostname === 'youtu.be' || parsedUrl.hostname.endsWith('.youtube.com') || parsedUrl.hostname === 'youtube.com';
+    const isVimeo = parsedUrl.hostname === 'vimeo.com' || parsedUrl.hostname.endsWith('.vimeo.com');
+    const finalType = isYoutube || isVimeo ? 'video' : embedType;
 
     const newEmbed: NoteEmbed = {
       id: `embed_${Date.now()}`,
       type: finalType,
-      url: embedUrl.trim(),
-      title: embedTitle.trim() || (isYoutube ? 'Video Embed' : 'Link Resource'),
+      url: trimmedUrl,
+      title: embedTitle.trim() || (finalType === 'video' ? 'Video Embed' : 'Link Resource'),
       description: embedDescription.trim(),
-      siteName: new URL(embedUrl.trim()).hostname.replace('www.', ''),
+      siteName: parsedUrl.hostname.replace('www.', ''),
     };
 
     setEmbeds([...embeds, newEmbed]);
@@ -257,8 +338,8 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ editNoteId, onDone }) =>
   return (
     <div id="inktella-note-editor" className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
       {/* Editor Top Bar */}
-      <div className="flex items-center justify-between gap-4 pb-4 border-b border-stone-200 dark:border-stone-800 text-xs">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-stone-200 dark:border-stone-800 text-xs">
+        <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={() => navigateTo({ type: 'discover' })}
             className="text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 flex items-center gap-1"
@@ -276,7 +357,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ editNoteId, onDone }) =>
         </div>
 
         {/* Notebook Selector & Status & Publish Button */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           {/* Notebook dropdown */}
           <select
             value={selectedNotebookId}
@@ -533,13 +614,17 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ editNoteId, onDone }) =>
             </label>
           </div>
 
-          <input
-            type="url"
-            value={embedUrl}
-            onChange={(e) => setEmbedUrl(e.target.value)}
-            placeholder="Paste URL (e.g. https://... or https://youtube.com/watch?v=...)"
-            className="w-full text-xs p-2 rounded border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 placeholder-stone-400 dark:placeholder-stone-500 font-mono"
-          />
+              <input
+                type="url"
+                value={embedUrl}
+                onChange={(e) => { setEmbedUrl(e.target.value); setEmbedError(''); }}
+                placeholder="Paste a secure URL"
+                aria-label="Embed URL"
+                aria-invalid={Boolean(embedError)}
+                className="w-full text-xs p-2 rounded border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 placeholder-stone-400 dark:placeholder-stone-500 font-mono"
+              />
+              {embedError && <p role="alert" className="text-xs text-red-600 dark:text-red-400">{embedError}</p>}
+
 
           {embedType === 'link-card' && (
             <>
