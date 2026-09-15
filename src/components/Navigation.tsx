@@ -21,13 +21,11 @@ export const Navigation: React.FC = () => {
     notifications,
     currentRoute,
     theme,
-    toggleTheme,
     navigateTo,
     setTheme,
     switchCurrentUser,
     markNotificationRead,
     markAllNotificationsRead,
-    setIsSearchOpen,
   } = useInktella();
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -36,7 +34,8 @@ export const Navigation: React.FC = () => {
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const notifMenuRef = useRef<HTMLDivElement>(null);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const userNotifications = notifications.filter((n) => n.userId === currentUser.id);
+  const unreadCount = userNotifications.filter((n) => !n.read).length;
 
   // Close menus on outside click
   useEffect(() => {
@@ -104,7 +103,11 @@ export const Navigation: React.FC = () => {
           {/* Quick Search */}
           <button
             id="global-search-trigger"
-            onClick={() => setIsSearchOpen(true)}
+            onClick={() => {
+              setIsNotifMenuOpen(false);
+              setIsProfileMenuOpen(false);
+              navigateTo({ type: 'search' });
+            }}
             className="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 text-xs text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-900 hover:bg-stone-200/70 dark:hover:bg-stone-800/70 border border-stone-200 dark:border-stone-800 rounded transition-colors"
             title="Search notes, notebooks, tools, and people (⌘K)"
           >
@@ -113,21 +116,6 @@ export const Navigation: React.FC = () => {
             <kbd className="hidden sm:inline px-1 py-0.5 text-[10px] font-mono bg-stone-200 dark:bg-stone-800 rounded text-stone-500">
               ⌘K
             </kbd>
-          </button>
-
-          {/* Quick 1-Click Theme Toggle */}
-          <button
-            id="quick-theme-toggle-btn"
-            onClick={toggleTheme}
-            className="p-1.5 sm:p-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-200/60 dark:hover:bg-stone-800/70 rounded-full transition-colors flex items-center justify-center cursor-pointer"
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle dark mode"
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-amber-400 hover:text-amber-300 transition-transform hover:rotate-45" />
-            ) : (
-              <Moon className="w-4 h-4 text-stone-600 hover:text-stone-900 transition-transform hover:-rotate-12" />
-            )}
           </button>
 
           {/* Write Note CTA (Desktop/tablet) */}
@@ -158,7 +146,7 @@ export const Navigation: React.FC = () => {
             {isNotifMenuOpen && (
               <div
                 id="notifications-popover"
-                className="absolute right-0 mt-2 w-80 sm:w-88 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg shadow-lg py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+                className="absolute right-0 sm:right-0 mt-2 w-[min(20rem,calc(100vw-1rem))] sm:w-88 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg shadow-lg py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
               >
                 <div className="px-4 py-2 border-b border-stone-100 dark:border-stone-800 flex items-center justify-between">
                   <span className="text-xs font-semibold tracking-wide uppercase text-stone-500 dark:text-stone-400">
@@ -174,25 +162,36 @@ export const Navigation: React.FC = () => {
                   )}
                 </div>
                 <div className="max-h-72 overflow-y-auto divide-y divide-stone-100 dark:divide-stone-800/50">
-                  {notifications.length === 0 ? (
+                  {userNotifications.length === 0 ? (
                     <div className="py-6 text-center text-xs text-stone-400">
                       No notifications yet.
                     </div>
                   ) : (
-                    notifications.map((n) => (
+                    userNotifications.map((n) => (
                       <div
                         key={n.id}
                         onClick={() => {
                           markNotificationRead(n.id);
                           setIsNotifMenuOpen(false);
-                          if (n.targetUrl.startsWith('/@')) {
-                            const parts = n.targetUrl.split('/');
-                            const uname = parts[1].replace('@', '');
-                            if (parts.length === 3) {
-                              navigateTo({ type: 'notebook', username: uname, notebookSlug: parts[2] });
-                            } else if (parts.length >= 4) {
-                              navigateTo({ type: 'note', username: uname, notebookSlug: parts[2], noteSlug: parts[3] });
+                          const target = n.targetUrl.replace(/^#/, '');
+                          if (target.startsWith('/@')) {
+                            const parts = target.split('/');
+                            const username = parts[1].replace('@', '');
+                            if (parts.length >= 4) {
+                              navigateTo({ type: 'note', username, notebookSlug: parts[2], noteSlug: parts[3] });
+                            } else if (parts.length === 3) {
+                              navigateTo({ type: 'notebook', username, notebookSlug: parts[2] });
+                            } else {
+                              navigateTo({ type: 'profile', username });
                             }
+                          } else if (target.startsWith('/tool/')) {
+                            navigateTo({ type: 'tool', slug: target.split('/')[2] });
+                          } else if (target.startsWith('/context/')) {
+                            navigateTo({ type: 'context', slug: target.split('/')[2] });
+                          } else if (target.startsWith('/search')) {
+                            navigateTo({ type: 'search', initialQuery: new URLSearchParams(target.split('?')[1] || '').get('q') || undefined });
+                          } else {
+                            navigateTo({ type: 'discover' });
                           }
                         }}
                         className={`px-4 py-3 text-xs cursor-pointer hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors ${
