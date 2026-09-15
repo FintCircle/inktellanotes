@@ -17,6 +17,7 @@ import {
   ChevronsUpDown,
 } from 'lucide-react';
 import { Note } from '../types';
+import { extractHtmlEmbeds, NoteEmbeds } from './NoteEmbedRenderer';
 
 interface NotePageProps {
   username: string;
@@ -79,6 +80,9 @@ export const NotePage: React.FC<NotePageProps> = ({
       </div>
     );
   }
+
+  const parsedBody = extractHtmlEmbeds(note.body);
+  const renderedEmbeds = [...(note.embeds || []), ...parsedBody.embeds];
 
   const isSaved = savedNoteIds.includes(note.id);
   const isAuthor = currentUser.id === note.authorId;
@@ -226,36 +230,10 @@ export const NotePage: React.FC<NotePageProps> = ({
 
       {/* Note Body (Typography-First Reading Column) */}
       <div className="inktella-prose">
-        <Markdown>{note.body}</Markdown>
+        <Markdown>{parsedBody.body}</Markdown>
       </div>
 
-      {/* Embedded Media Cards if specified in note */}
-      {note.embeds && note.embeds.length > 0 && (
-        <div className="my-8 space-y-4">
-          {note.embeds.map((embed) => (
-            <div
-              key={embed.id}
-              className="p-4 border border-stone-200 dark:border-stone-800 rounded bg-stone-50/50 dark:bg-stone-900/40 text-xs font-sans"
-            >
-              {embed.type === 'link-card' && (
-                <a
-                  href={embed.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block group hover:opacity-90 transition-opacity"
-                >
-                  <p className="font-semibold text-stone-900 dark:text-stone-100 text-sm flex items-center gap-1">
-                    {embed.title || embed.url}
-                    <ExternalLink className="w-3 h-3 text-stone-400" />
-                  </p>
-                  {embed.description && <p className="text-stone-600 dark:text-stone-400 mt-1">{embed.description}</p>}
-                  <p className="text-stone-400 dark:text-stone-500 font-mono text-[10px] mt-2">{embed.siteName || embed.url}</p>
-                </a>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      {renderedEmbeds.length > 0 && <NoteEmbeds embeds={renderedEmbeds} />}
 
       {/* Bottom Contexts & Tools Tags */}
       <div className="mt-12 pt-6 border-t border-stone-200 dark:border-stone-800">

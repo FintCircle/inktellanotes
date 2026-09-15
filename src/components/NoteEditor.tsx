@@ -25,6 +25,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { NoteStatus, NoteEmbed } from '../types';
+import { extractHtmlEmbeds, NoteEmbeds } from './NoteEmbedRenderer';
 
 interface NoteEditorProps {
   editNoteId?: string;
@@ -257,13 +258,6 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ editNoteId, onDone }) =>
     };
 
     setEmbeds([...embeds, newEmbed]);
-
-    // Also insert markdown hint
-    if (finalType === 'image') {
-      insertFormatting(`\n![Image](${embedUrl.trim()})\n`);
-    } else {
-      insertFormatting(`\n> [Resource: ${newEmbed.title}](${embedUrl.trim()})\n`);
-    }
 
     setShowEmbedDialog(false);
     setEmbedUrl('');
@@ -668,9 +662,19 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ editNoteId, onDone }) =>
           <h1 className="font-editorial text-3xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100 mb-6">
             {title || 'Untitled Note'}
           </h1>
-          <div className="inktella-prose">
-            <Markdown>{body || '*No content written yet.*'}</Markdown>
-          </div>
+          {(() => {
+            const parsedBody = extractHtmlEmbeds(body);
+            return (
+              <>
+                <div className="inktella-prose">
+                  <Markdown>{parsedBody.body || '*No content written yet.*'}</Markdown>
+                </div>
+                {(embeds.length > 0 || parsedBody.embeds.length > 0) && (
+                  <NoteEmbeds embeds={[...embeds, ...parsedBody.embeds]} />
+                )}
+              </>
+            );
+          })()}
         </div>
       ) : (
         <div className="space-y-4 py-4">
