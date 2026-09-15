@@ -15,11 +15,13 @@ import {
 
 interface SearchModalProps {
   onClose: () => void;
+  initialQuery?: string;
+  pageMode?: boolean;
 }
 
-export const SearchModal: React.FC<SearchModalProps> = ({ onClose }) => {
+export const SearchModal: React.FC<SearchModalProps> = ({ onClose, initialQuery = '', pageMode = false }) => {
   const { notes, notebooks, users, contexts, tools, navigateTo } = useInktella();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const [activeFilter, setActiveFilter] = useState<'all' | 'notes' | 'notebooks' | 'people' | 'tags'>('all');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -144,17 +146,18 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose }) => {
   return (
     <div
       id="search-modal-backdrop"
-      className="fixed inset-0 z-50 flex items-start justify-center pt-14 sm:pt-20 px-4 bg-stone-900/60 dark:bg-stone-950/80 backdrop-blur-xs animate-in fade-in duration-150"
+      className={pageMode ? 'min-h-[calc(100vh-4rem)] bg-[#FAF9F6] dark:bg-[#1C1B19] transition-colors' : 'fixed inset-0 z-50 flex items-start justify-center pt-14 sm:pt-20 px-4 bg-stone-900/60 dark:bg-stone-950/80 backdrop-blur-xs animate-in fade-in duration-150'}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (!pageMode && e.target === e.currentTarget) onClose();
       }}
     >
       <div
         id="search-modal-card"
-        className="w-full max-w-2xl bg-[#FAF9F6] dark:bg-[#1C1B19] border border-stone-300 dark:border-stone-800 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[82vh] transition-colors"
+        className={pageMode ? 'w-full max-w-5xl mx-auto min-h-[calc(100vh-4rem)] border-x border-stone-200 dark:border-stone-800 bg-[#FAF9F6] dark:bg-[#1C1B19] overflow-hidden flex flex-col transition-colors' : 'w-full max-w-2xl bg-[#FAF9F6] dark:bg-[#1C1B19] border border-stone-300 dark:border-stone-800 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[82vh] transition-colors'}
       >
         {/* Search Header Input */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-stone-200 dark:border-stone-800 bg-white/70 dark:bg-stone-900/60">
+          {pageMode && <button type="button" onClick={onClose} className="text-sm text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">Back</button>}
           <Search className="w-5 h-5 text-stone-400 shrink-0" />
           <input
             ref={inputRef}

@@ -19,6 +19,7 @@ import { NoteEditor } from './components/NoteEditor';
 import { AdminModerationView } from './components/AdminModerationView';
 import { GiftModal } from './components/GiftModal';
 import { ReportModal } from './components/ReportModal';
+import { SearchModal } from './components/SearchModal';
 import { BottomNavigation } from './components/BottomNavigation';
 import { Shield } from 'lucide-react';
 
@@ -59,6 +60,8 @@ const InktellaMain: React.FC = () => {
         return <SavedNotesView />;
       case 'admin':
         return <AdminModerationView />;
+      case 'search':
+        return <SearchModal initialQuery={currentRoute.initialQuery} pageMode onClose={() => navigateTo({ type: 'discover' })} />;
       case 'editor':
         return <NoteEditor editNoteId={currentRoute.editNoteId} />;
       case 'note':
