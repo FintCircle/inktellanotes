@@ -156,8 +156,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, initialQuery 
         className={pageMode ? 'w-full max-w-5xl mx-auto min-h-[calc(100vh-4rem)] border-x border-stone-200 dark:border-stone-800 bg-[#FAF9F6] dark:bg-[#1C1B19] overflow-hidden flex flex-col transition-colors' : 'w-full max-w-2xl bg-[#FAF9F6] dark:bg-[#1C1B19] border border-stone-300 dark:border-stone-800 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[82vh] transition-colors'}
       >
         {/* Search Header Input */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-stone-200 dark:border-stone-800 bg-white/70 dark:bg-stone-900/60">
-          {pageMode && <button type="button" onClick={onClose} className="text-sm text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">Back</button>}
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3.5 border-b border-stone-200 dark:border-stone-800 bg-white/70 dark:bg-stone-900/60">
+          {pageMode && <button type="button" onClick={onClose} className="shrink-0 text-sm text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">Back</button>}
           <Search className="w-5 h-5 text-stone-400 shrink-0" />
           <input
             ref={inputRef}

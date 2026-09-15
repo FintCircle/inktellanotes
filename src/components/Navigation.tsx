@@ -146,7 +146,7 @@ export const Navigation: React.FC = () => {
             {isNotifMenuOpen && (
               <div
                 id="notifications-popover"
-                className="absolute right-0 sm:right-0 mt-2 w-[min(20rem,calc(100vw-1rem))] sm:w-88 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg shadow-lg py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+                className="fixed top-16 left-2 right-2 w-auto sm:absolute sm:top-auto sm:left-auto sm:right-0 sm:mt-2 sm:w-88 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg shadow-lg py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
               >
                 <div className="px-4 py-2 border-b border-stone-100 dark:border-stone-800 flex items-center justify-between">
                   <span className="text-xs font-semibold tracking-wide uppercase text-stone-500 dark:text-stone-400">
